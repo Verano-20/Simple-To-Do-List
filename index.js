@@ -16,4 +16,6 @@ submitbtn.addEventListener('click', function(e) {
         }})
     list.insertBefore(newTask, firstTask)
     e.preventDefault()
+    input.value=''
 })
+
