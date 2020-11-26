@@ -3,19 +3,30 @@ var submitbtn = document.getElementById("submit-btn")
 var list = document.getElementById("task-list")
 
 submitbtn.addEventListener('click', function(e) {
-    var newTask = document.createElement('li')
-    var textNode = document.createTextNode(input.value)
     var firstTask = list.firstElementChild
-    newTask.classList.add('task-item')
+    var listItem = document.createElement('li')
+    var newTask = document.createElement('p')
+    var textNode = document.createTextNode(input.value)
+    var binIcon = document.createElement('span')
+
+    listItem.classList.add('task-item')
     newTask.appendChild(textNode)
-    newTask.addEventListener('click', function(){
-        if (newTask.classList.contains("completed")){
-            newTask.classList.remove("completed")
+    listItem.appendChild(newTask)
+    listItem.appendChild(binIcon)
+    listItem.addEventListener('click', function(){
+        if (listItem.classList.contains("completed")){
+            listItem.classList.remove("completed")
         } else {
-            newTask.classList.add("completed")
+            listItem.classList.add("completed")
         }})
-    list.insertBefore(newTask, firstTask)
+
+    list.insertBefore(listItem, firstTask)
+
+    binIcon.addEventListener('click', function() {
+        console.log('delete')
+        list.removeChild(listItem)
+    })
+
     e.preventDefault()
     input.value=''
 })
-

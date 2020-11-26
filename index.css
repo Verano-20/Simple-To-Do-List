@@ -53,12 +53,14 @@ form {
     border: 3px solid black;
     border-radius: 5px;
     box-shadow: 0px 0px 10px white;
-    min-height: 30px;
+
     display: flex;
     align-items: center;
-    padding: 10px;
+    justify-content: space-between;
+    
+    min-height: 30px;
     margin: 10px;
-    overflow: hidden;
+
     animation-name: pulse;
     animation-duration: 300ms;
     animation-iteration-count: 2;
@@ -67,13 +69,36 @@ form {
 .task-item:hover {
     background-color: rgba(155, 154, 154, 0.5);
 }
-.completed {
-    background-color: rgba(155, 154, 154, 0.5);
+.task-item > p:hover, .completed > p {
     text-decoration: line-through;
 }
-.completed:hover{
-    background-color: rgba(255, 255, 255, 0.5);
+.completed {
+    background-color: rgba(155, 154, 154, 0.5);
 }
+
+.task-item > p {
+    width: 95%;
+    height: 100%;
+    margin: 0;
+    padding: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.task-item > span {
+    width: 5%;
+    margin: 0;
+    padding: 10px;
+    text-align: center;
+    font-size: 36px;
+    color: rgba(248, 245, 45, 0.8);
+}
+.task-item > span:hover {
+    color: rgba(255, 20, 20, 0.8);
+}
+.task-item > span::after {
+    content: '\2715';
+}
+
 @keyframes pulse {
     0% {
         box-shadow: 0px 0px 10px white;
