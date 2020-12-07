@@ -7,9 +7,9 @@ Back-End: Node.js, Express.js
 Items can be added and removed from the list, and marked as complete or not by clicking on them. The list is stored in a JSON file which is updated after every change to the list.
 
 Future features may include:  
-    - Themes
-    - Multiple Users (sign-in)
-    - Multiple lists per user
+    - Themes  
+    - Multiple Users (sign-in)  
+    - Multiple lists per user  
     - User able to re-order list
 
 
