@@ -1,50 +1,83 @@
-const bodyParser = require('body-parser')
-const fs = require('fs')
 const express = require('express')
-const app = express()
+const bodyParser = require('body-parser')
+const mongoClient = require('mongodb').MongoClient
 
-hostname = '127.0.0.1'
-port = 3000 
+// Temp user until login is implemented
+const user = 'sam'
 
-app.use(bodyParser.urlencoded({extended: true}))
-app.use(express.static(__dirname))
+// Connect to local MongoDB
+const dbUrl = 'mongodb://127.0.0.1:27017'
+const dbName = 'toDoList'
+const dbCollection = 'users'
 
-app.listen(port, () => {
-  console.log(`Listening on port ${port}`)
+let dbConnect = new Promise((resolve, reject) => {
+  mongoClient.connect(dbUrl, {useUnifiedTopology: true}, (err, client) => {
+    if (err) reject(err)
+    resolve(client.db(dbName))
+    console.log(`Connected to URL: ${dbUrl}\nDatabase: ${dbName}`)
+  })
 })
 
-app.get('/', (req, res) => {
+// HTTP handlers
+const app = express()
+app.use(bodyParser.urlencoded({extended: true}))
+app.use(express.static(__dirname))
+const httpPort = 3000
+
+app.listen(httpPort, () => {
+  console.log(`Server running on: localhost:${httpPort}`)
+})
+
+app.get("/", (req, res) => {
   res.sendFile('/index.html')
 })
 
+app.get("/getTasks", (req, res) => {
+  dbConnect.then((db) => {
+    db.collection(dbCollection).findOne({username: user}, (err, data) => {
+      if (err) throw err
+      res.send(data.tasks)
+    })
+  }).catch((err) => {
+    console.log(err)
+  })
+})
+
 app.post("/completedTask", (req, res) => {
-  let listData = JSON.parse(fs.readFileSync('list.json'))
-  let index = listData.findIndex((item) => item.title === req.body.title)
-  listData[index] = req.body
-  fs.writeFileSync('list.json', JSON.stringify(listData))
-  console.log('Task completion updated successfully.')
+  dbConnect.then((db) => {
+    db.collection(dbCollection).findOne({username: user}, (err, data) => {
+      if (err) throw err
+      data.tasks[req.body.task] = (req.body.completed == 'true')
+      db.collection(dbCollection).updateOne({username: user}, {$set: data})
+    })
+  }).catch((err) => {
+    console.log(err)
+  })
   res.sendStatus(200)
 })
 
 app.post("/deleteTask", (req, res) => {
-  let listData = JSON.parse(fs.readFileSync('list.json'))
-  let index = listData.findIndex((item) => item.title === req.body.title)
-  listData.splice(index, 1)
-  fs.writeFileSync('list.json', JSON.stringify(listData))
-  console.log('Task deleted successfully.')
+  dbConnect.then((db) => {
+    db.collection(dbCollection).findOne({username: user}, (err, data) => {
+      if (err) throw err
+      delete data.tasks[req.body.task]
+      db.collection(dbCollection).updateOne({username: user}, {$set: data})
+    })
+  }).catch((err) => {
+    console.log(err)
+  })
   res.sendStatus(200)
 })
 
 app.post("/newTask", (req, res) => {
-  let jsonRead = fs.readFileSync('list.json')
-  let listData
-  if (jsonRead.length > 0) {
-    listData = JSON.parse(jsonRead)
-    listData.unshift(req.body)
-  } else {
-    listData = [req.body]
-  }
-  fs.writeFileSync('list.json', JSON.stringify(listData))
-  console.log('Task added successfully.')
+  dbConnect.then((db) => {
+    db.collection(dbCollection).findOne({username: user}, (err, res) => {
+      if (err) throw err
+      res.tasks = Object.assign(req.body, res.tasks)
+      db.collection(dbCollection).updateOne({username: user}, {$set: res})
+    })
+  }).catch((err) => {
+    console.log(err)
+  })
   res.sendStatus(200)
 })
